@@ -20,9 +20,16 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      # Check the Quality Gate status and stop the push if it fails
+            # Check the Quality Gate status
       - name: Check Quality Gate
         uses: sonarsource/sonarqube-quality-gate-action@v1
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        
+      # Fail the job if the Quality Gate fails
+      - name: Fail on critical vulnerabilities
+        if: failure()
+        run: |
+          echo "Quality Gate failed due to high or critical vulnerabilities. Stopping the push."
+          exit 1
